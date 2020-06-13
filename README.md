@@ -9,3 +9,15 @@ Using the 12th for the source of the claimrate, RMSE is 0.265, mean absolute err
 Using the 12th and the 19th claimrates (and their lags), RMSE is 0.353, mean absolute error is 0.148. Dropping the last 6 lags, RMSE = 0.291, MAE = 0.129
 
 Using just the 19th for the claimrates, RMSE is 0.375, mean absolute error is 0.134. Dropping the last 6 lags, RMSE = 0.350, MAE=0.132.
+
+Using just an AR model for unemployment, RMSE is 0.543, mean absolute error is 0.162. Dropping the last 6 lags, RMSE=0.541, MAE=0.158.
+
+Using the last 6 lags only because it seems to consistently beat the last 12 lags, calcating jump error, defined as the forecast error when unemployment rises by equal to or more than 0.3 from the previous month:
+
+Using just the AR model, jump RMSE = 1.73, MAE = 0.608. Coefficient of regression fcasterr on cunrate is 1.04.
+
+Using the 12th for the source of the claimrate, jump RMSE=0.440, MAE=0.307. Coefficient of regressing fcasterr on cunrate is 0.300.
+
+Using the 12th and the 19th, jump RMSE = 0.355, MAE = 0.281. Coefficient of regression fcasterr on cunrate is 0.252.
+
+Using the 19th only, jump RMSE = 0.638, MAE = 0.339. Coefficient of regression fcasterr on cunrate is 0.442.
