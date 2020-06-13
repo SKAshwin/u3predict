@@ -1,4 +1,4 @@
-use data/unrate_claims_1wdelayed, clear
+use data/unrate_claims, clear
 
 *create lags and claimrate variables
 

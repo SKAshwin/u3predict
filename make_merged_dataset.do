@@ -53,4 +53,4 @@ lab var labforce "Labour Force size (in 1000s)"
 lab var totclaims "Total Outstanding Unemployment Claims (initclaims + contclaims)"
 lab var totclaims_1wdelay "Total Outstanding Unemployment Claims the week after the BLS survey (initclaims_1wdelay + contclaims_1weekdelay)"
 
-save data/unrate_claims_1wdelayed, replace
+save data/unrate_claims, replace
