@@ -17,14 +17,16 @@ forval i = 1 / 12 {
 	gen claimrate_1wdelay_`i' = claimrate_1wdelay[_n-`i']
 }
 
+replace unrate = 19.4 if _n == _N-1
+
 *Pick any one of the models below to test out - uncomment it, comment the rest
-*AR(6) unemployment ->
+*#1 AR(6) unemployment ->
 *global regression reg unrate unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6
-*claimrate_1wdelay, unem ->
-*global regression reg unrate claimrate_1wdelay claimrate_1wdelay_1 claimrate_1wdelay_2 claimrate_1wdelay_3 claimrate_1wdelay_4 claimrate_1wdelay_5 claimrate_1wdelay_6 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6
-*claimrate, unem ->
+*#2 claimrate, unem ->
 global regression reg unrate claimrate claimrate_1 claimrate_2 claimrate_3 claimrate_4 claimrate_5 claimrate_6 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6
-*claimrate, claimrate_1wdelay, unem ->
+*#3 claimrate_1wdelay, unem ->
+*global regression reg unrate claimrate_1wdelay claimrate_1wdelay_1 claimrate_1wdelay_2 claimrate_1wdelay_3 claimrate_1wdelay_4 claimrate_1wdelay_5 claimrate_1wdelay_6 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6
+*#4 claimrate, claimrate_1wdelay, unem ->
 *global regression reg unrate claimrate_1wdelay claimrate_1wdelay_1 claimrate_1wdelay_2 claimrate_1wdelay_3 claimrate_1wdelay_4 claimrate_1wdelay_5 claimrate_1wdelay_6 claimrate claimrate_1 claimrate_2 claimrate_3 claimrate_4 claimrate_5 claimrate_6 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6
 
 *12 lags model
@@ -62,7 +64,7 @@ mean fcasterr2
 *manually calculate RMSE from the mean squared error
 mean abserror
 
-gen jumpfcasterr = unrate - osefcast if unrate-unrate_1>=0.3
+gen jumpfcasterr = unrate - osefcast if unrate-unrate_1>=0.3 | unrate-unrate_1<=-0.3
 gen absjumperr = abs(jumpfcasterr)
 gen jumpfcasterr2 = jumpfcasterr^2
 
@@ -71,5 +73,4 @@ mean jumpfcasterr2
 
 reg fcasterr cunrate,r
 
-*graph scatter plot, ignore outliers for better visualization
-scatter fcasterr cunrate if fcasterr > -3 & cunrate < 6 
+*line osefcast unrate date
