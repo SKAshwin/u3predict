@@ -25,8 +25,6 @@ forval i = 1 / 12 {
 	gen claimrate_1wdelay_`i' = claimrate_1wdelay[_n-`i']
 }
 
-replace unrate = 19.4 if _n == _N-1
-
 *Pick any one of the models below to test out - uncomment it, comment the rest
 *#1 AR(6) unemployment ->
 *global regression reg unrate unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6
