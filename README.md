@@ -30,10 +30,11 @@ Regress the change in unemployment on the change of claim rate (measuring during
 Their performances are in the table below. MAE and RMSE refer to mean absolute error and root mean square error - both are about the one step ahead forecast error, ie error on new data one period ahead, not data used to train the model. "Jump" MAE and RMSE refer to the error in predicted unemployment in periods when actual unemployment rose by more than 0.3
 
 
-|Model|MAE|RMSE|Jump MAE|Jump RMSE|
-|-----|---|----|--------|---------|----------------------------------|
+| Model | MAE | RMSE | Jump MAE | Jump RMSE |
+| ----- | --- | ---- | -------- | --------- |
 |#1|0.185|0.634|0.830|1.90|
 |#2|0.155|0.391|0.574|1.132|
 |#3|0.152|0.397|0.562|1.153|
 |#4|0.151|0.379|0.537|1.09|
 |#5|0.131|0.193|0.332|0.449|
+
