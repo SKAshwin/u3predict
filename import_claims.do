@@ -1,5 +1,5 @@
-global claimtype ICSA
-global weekdelay = 0 
+global claimtype CCSA
+global weekdelay 1
 *run for ICSA (initial claims), CCSA (continuing claims) and then weekdelay=0 and weekdelay=1, to use
 *weekdelay=1 means the claims from the week *after* the BLS reference week are used
 
@@ -15,7 +15,7 @@ gen u3measuredate = mdy(month(date), 12, year(date))
 *because claims are for each sunday
 gen u3measuresunday = u3measuredate+(6-dow(u3measuredate))
 *keep the claims data for the U3 reference week (+however many weeks delayed), drop all else
-keep if date==u3measuresunday + 7*weekday
+keep if date==u3measuresunday + 7*$weekdelay
 *drop helping variables
 drop u3measuredate
 drop u3measuresunday
@@ -24,4 +24,10 @@ drop u3measuresunday
 replace date = mdy(month(date), 1, year(date))
 format date %td
 
-save data/${claimtype}, replace
+if $weekdelay == 0 {
+	save data/${claimtype}, replace
+}
+else {
+	save data/${claimtype}_${weekdelay}wdelayed, replace
+}
+
