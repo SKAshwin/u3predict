@@ -1,10 +1,10 @@
 clear all
 use data/unrate_claims, clear
 
-*fix covid19 classification errors
-replace unrate = unrate + 1 if date == date("1 March 2020", "DMY") // March misclassified by 1% according to BLS
-replace unrate = unrate + 5 if date == date("1 April 2020", "DMY") // April misclassified by 5% according to BLS
-replace unrate = unrate + 3 if date == date("1 May 2020", "DMY") // May misclassified by 3% according to BLS
+*fix covid19 classification errors; unclear if you want to count all the misclassified as unemployed
+*replace unrate = unrate + 1 if date == date("1 March 2020", "DMY") // March misclassified by 1% according to BLS
+*replace unrate = unrate + 5 if date == date("1 April 2020", "DMY") // April misclassified by 5% according to BLS
+*replace unrate = unrate + 3 if date == date("1 May 2020", "DMY") // May misclassified by 3% according to BLS
 
 *create lags and claimrate variables
 

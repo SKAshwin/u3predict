@@ -21,23 +21,18 @@ format date %td
 
 *merge all the datasets
 merge 1:1 date using data/laborforce
-//keep if _merge==3
 drop _merge
 
 merge 1:1 date using data/ICSA_1wdelayed
-//keep if _merge==3
 drop _merge
 merge 1:1 date using data/CCSA_1wdelayed
-//keep if _merge==3
 drop _merge
 rename icsa initclaims_1wdelay
 rename ccsa contclaims_1wdelay
 
 merge 1:1 date using data/ICSA
-//keep if _merge==3 | _merge==2 //keep if unemployment rate not available, but ICSA available
 drop _merge
 merge 1:1 date using data/CCSA
-//keep if _merge==3 | _merge==2
 drop _merge
 
 *just renaming and reordering the dataset to make it friendlier
@@ -56,6 +51,7 @@ lab var labforce "Labour Force size (in 1000s)"
 lab var totclaims "Total Outstanding Unemployment Claims (initclaims + contclaims)"
 lab var totclaims_1wdelay "Total Outstanding Unemployment Claims the week after the BLS survey (initclaims_1wdelay + contclaims_1weekdelay)"
 
+*no data for claims before this date, so drop everything
 drop if date < date("1 Jan 1967", "DMY")
 
 save data/unrate_claims, replace

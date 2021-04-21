@@ -1,5 +1,5 @@
-global claimtype CCSA
-global weekdelay 1
+global claimtype ICSA
+global weekdelay 0
 *run for ICSA (initial claims), CCSA (continuing claims) and then weekdelay=0 and weekdelay=1, to use
 *weekdelay=1 means the claims from the week *after* the BLS reference week are used
 
