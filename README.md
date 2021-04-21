@@ -1,23 +1,39 @@
-Claims data is available before the publishing of U3, and total unemployment should, in theory, equal the claims rate plus some amount of unemployed that are not currently on benefits. The best model would use the claimrate and then aim to somehow estimate the number of people without a claim looking for work. A lazy model, which is this one, just uses lags of unemployment and lags of claims data.
+Unemployment claims data is available before the publishing of U3, and the objective of this project was to estimate the unemployment rate for the moment based off the total number of claims, and see if this methodology would work better than a simple VAR of the unemployment rate (which, during the outbreak of the pandemic, seemed to produced wildly off-mark estimates). To this end, we calculate an estimated *claim rate* for the month, which is the total claims divided by the previous months labor force size (used as a proxy for the current month's labor force).
 
-Continuing claims and initial claims are measured weekly, but U3 (and the labor force size) is measured once a month. So we need to take the claims data measured the same week as the reference week for U3, which is the week that contains the 12th. So import_claims.do handles that. Then make_merged_dataset.do prepares the final dataset by merging U3, the labor force size and the initial and continuing claims (and producing total outstanding claims by summing up the two). Labels are added to each variable as appropriate. prediction_and_eval.do adds some more variables (mainly the lags) and runs some models and tests their one step ahead forecast accuracy.
+The raw csv data files are stored in raw/ (see raw/README.md for the sources of data). Claims data comes in the form of new initial claims (ICSA) for that week, and continuing claims (CCSA, how many pre-existing claims continued being paid out for that week). Total claims, which we are interested in, are the sum of these two values.
 
-We can also choose to use the claims data from the week *after* the BLS measurement, which seems to more accurately deal with sudden shifts in unemployment (though as you see below, it has a worse RMSE and MAE overall), which may be because claims data from the week of measurement are backlogged when unemployment rises quickly (as in March 2020 for an instructive example between including and not including week-after claims) and thus are not a good estimate of "people recently unemployed", as it is meant to be.
+*import_claims.do* takes the raw csv of the weekly claims data (ICSA and CCSA) and produces dta files of a table with one claim reading a month. The reading used is by default that of the **BLS reference week**, which is the week during which unemployment is measured, and is defined as the week containing the 12th. A parameter can be changed to also construct dta files for unemployment claims of the week *after* the BLS reference week, which may be more reflective of claims filed during the reference week if there is a surge in claims that produces a backlog (as happened during COVID19). Outputs of dta files are deposited in the data/ folder.
 
-Using the 12th for the source of the claimrate, RMSE is 0.265, mean absolute error is 0.128. Dropping the last 6 lags, RMSE = 0.254, MAE = 0.126
+*make_merged_dataset.do* merges in U3, the labor force size and the claims data (ICSA and CCSA) from the week of and the week after the BLS refrence week. Each variable is labelled. The final output is stored in the data/ folder.
 
-Using the 12th and the 19th claimrates (and their lags), RMSE is 0.353, mean absolute error is 0.148. Dropping the last 6 lags, RMSE = 0.291, MAE = 0.129
+*prediction_and_eval.do* adds some more variables (mainly the lags) and estimates a one-step-ahead forecast using several VARs of unemployment and the claim rate. It then calculates the mean absolute and root mean squared errors for the model selected. A "jump" mean absolute/root mean squared error is also calculated, where the models performance is only evaluated in months where unemployment rose by 0.3 or more.
 
-Using just the 19th for the claimrates, RMSE is 0.375, mean absolute error is 0.134. Dropping the last 6 lags, RMSE = 0.350, MAE=0.132.
+*change_prediction_and_eval.do* tests a different set of models that tries to estimate the *change* in unemployment from the *change* in the claim rate, and uses this to construct a one step ahead forecast. It generally performs much better; its only a separate file because I thought of this at a later date.
 
-Using just an AR model for unemployment, RMSE is 0.543, mean absolute error is 0.162. Dropping the last 6 lags, RMSE=0.541, MAE=0.158.
+Some of the prediction models tested, and their performances, are listed below:
 
-Using the last 6 lags only because it seems to consistently beat the last 12 lags, calcating jump error, defined as the forecast error when unemployment rises by equal to or more than 0.3 from the previous month:
+Model (1) Basic VAR
+Regress unemployment on the last 6 lags of unemployment.
 
-Using just the AR model, jump RMSE = 1.73, MAE = 0.608. Coefficient of regression fcasterr on cunrate is 1.04.
+Model (2) VAR with BLS reference week claim rates
+Regress unemployment on the last 6 lags of unemployment and the last 6 readings of the claim rate during the BLS reference week.
 
-Using the 12th for the source of the claimrate, jump RMSE=0.440, MAE=0.307. Coefficient of regressing fcasterr on cunrate is 0.300.
+Model (3) VAR with delayed claim rates
+Regress unemployment on the last 6 lags of unemployment and the last 6 readings of the claim rate during the week after BLS reference week.
 
-Using the 12th and the 19th, jump RMSE = 0.355, MAE = 0.281. Coefficient of regression fcasterr on cunrate is 0.252.
+Model (4) VAR with both claim rates
+Regress unemployment on the last 6 lags of unemployment and the last 6 readings of the claim rate during the week after BLS reference week, and the last 6 readings of the claim rate during the BLS reference week.
 
-Using the 19th only, jump RMSE = 0.638, MAE = 0.339. Coefficient of regression fcasterr on cunrate is 0.442.
+Model (5) Changes in unemployment
+Regress the change in unemployment on the change of claim rate (measuring during the BLS reference week). Construct the one step ahead forecast by adding the predicted change to the previous months unemployment rate.
+
+Their performances are in the table below. MAE and RMSE refer to mean absolute error and root mean square error - both are about the one step ahead forecast error, ie error on new data one period ahead, not data used to train the model. "Jump" MAE and RMSE refer to the error in predicted unemployment in periods when actual unemployment rose by more than 0.3
+
+
+|Model|MAE|RMSE|Jump MAE|Jump RMSE|
+|-----|---|----|--------|---------|----------------------------------|
+|#1|0.185|0.634|0.830|1.90|
+|#2|0.155|0.391|0.574|1.132|
+|#3|0.152|0.397|0.562|1.153|
+|#4|0.151|0.379|0.537|1.09|
+|#5|0.131|0.193|0.332|0.449|
