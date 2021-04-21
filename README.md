@@ -13,18 +13,23 @@ The raw csv data files are stored in raw/ (see raw/README.md for the sources of 
 Some of the prediction models tested, and their performances, are listed below:
 
 Model (1) Basic VAR
+
 Regress unemployment on the last 6 lags of unemployment.
 
 Model (2) VAR with BLS reference week claim rates
+
 Regress unemployment on the last 6 lags of unemployment and the last 6 readings of the claim rate during the BLS reference week.
 
 Model (3) VAR with delayed claim rates
+
 Regress unemployment on the last 6 lags of unemployment and the last 6 readings of the claim rate during the week after BLS reference week.
 
 Model (4) VAR with both claim rates
+
 Regress unemployment on the last 6 lags of unemployment and the last 6 readings of the claim rate during the week after BLS reference week, and the last 6 readings of the claim rate during the BLS reference week.
 
 Model (5) Changes in unemployment
+
 Regress the change in unemployment on the change of claim rate (measuring during the BLS reference week). Construct the one step ahead forecast by adding the predicted change to the previous months unemployment rate.
 
 Their performances are in the table below. MAE and RMSE refer to mean absolute error and root mean square error - both are about the one step ahead forecast error, ie error on new data one period ahead, not data used to train the model. "Jump" MAE and RMSE refer to the error in predicted unemployment in periods when actual unemployment rose by more than 0.3
