@@ -1,16 +1,16 @@
+clear all
 use data/unrate_claims, clear
-
-*create lags and claimrate variables
-
-forval i = 1 / 12 {
-	gen unrate_`i' = unrate[_n-`i']
-}
 
 *fix covid19 classification errors
 replace unrate = unrate + 1 if date == date("1 March 2020", "DMY") // March misclassified by 1% according to BLS
 replace unrate = unrate + 5 if date == date("1 April 2020", "DMY") // April misclassified by 5% according to BLS
 replace unrate = unrate + 3 if date == date("1 May 2020", "DMY") // May misclassified by 3% according to BLS
 
+*create lags and claimrate variables
+
+forval i = 1 / 12 {
+	gen unrate_`i' = unrate[_n-`i']
+}
 
 gen claimrate = totclaims/(labforce[_n-1]*1000) * 100
 gen claimrate_1wdelay = totclaims_1wdelay/(labforce[_n-1]*1000) * 100
@@ -35,15 +35,8 @@ forval i = 1 / 12 {
 *#4 claimrate, claimrate_1wdelay, unem ->
 global regression reg unrate claimrate_1wdelay claimrate_1wdelay_1 claimrate_1wdelay_2 claimrate_1wdelay_3 claimrate_1wdelay_4 claimrate_1wdelay_5 claimrate_1wdelay_6 claimrate claimrate_1 claimrate_2 claimrate_3 claimrate_4 claimrate_5 claimrate_6 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6
 
-*12 lags model
-*global regression reg unrate claimrate claimrate_1 claimrate_2 claimrate_3 claimrate_4 claimrate_5 claimrate_6 claimrate_7 claimrate_8 claimrate_9 claimrate_10 claimrate_11 claimrate_12 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6 unrate_7 unrate_8 unrate_9 unrate_10 unrate_11 unrate_12
-*global regression reg unrate claimrate_1wdelay claimrate_1wdelay_1 claimrate_1wdelay_2 claimrate_1wdelay_3 claimrate_1wdelay_4 claimrate_1wdelay_5 claimrate_1wdelay_6 claimrate_1wdelay_7 claimrate_1wdelay_8 claimrate_1wdelay_9 claimrate_1wdelay_10 claimrate_1wdelay_11 claimrate_1wdelay_12 claimrate claimrate_1 claimrate_2 claimrate_3 claimrate_4 claimrate_5 claimrate_6 claimrate_7 claimrate_8 claimrate_9 claimrate_10 claimrate_11 claimrate_12 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6 unrate_7 unrate_8 unrate_9 unrate_10 unrate_11 unrate_12
-*global regression reg unrate claimrate_1wdelay claimrate_1wdelay_1 claimrate_1wdelay_2 claimrate_1wdelay_3 claimrate_1wdelay_4 claimrate_1wdelay_5 claimrate_1wdelay_6 claimrate_1wdelay_7 claimrate_1wdelay_8 claimrate_1wdelay_9 claimrate_1wdelay_10 claimrate_1wdelay_11 claimrate_1wdelay_12 unrate_1 unrate_2 unrate_3 unrate_4 unrate_5 unrate_6 unrate_7 unrate_8 unrate_9 unrate_10 unrate_11 unrate_12
-
-
 save data/final_model_data, replace
-
-gen cunrate = unrate - unrate_1
+export delim data/final_model_data.csv, replace
 
 *one step ahead forecast
 *calculated by, from the 50th month onwards, estimating the model with all previous data
@@ -66,17 +59,25 @@ gen fcasterr = unrate - osefcast
 gen fcasterr2 = fcasterr^2
 gen abserror = abs(fcasterr)
 
-mean fcasterr2
-*manually calculate RMSE from the mean squared error
 mean abserror
+summarize fcasterr2
+di sqrt(`r(mean)')
+*the RMSE
+
+
+*The jump error is the forecast error limited to situations where there is a large change in
+*unemployment. Worried that some methods perform much worse during these times
+*for example, using total claims from the week *of* the BLS survey instead of the week after
+*when processing backlogs would have been cleared
 
 gen jumpfcasterr = unrate - osefcast if unrate-unrate_1>=0.3 | unrate-unrate_1<=-0.3
 gen absjumperr = abs(jumpfcasterr)
 gen jumpfcasterr2 = jumpfcasterr^2
 
 mean absjumperr
-mean jumpfcasterr2
+summarize jumpfcasterr2
+di sqrt(`r(mean)')
+*the RMSE
 
-reg fcasterr cunrate,r
 
 *line osefcast unrate date
